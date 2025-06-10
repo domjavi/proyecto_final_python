@@ -8,6 +8,9 @@ from crud.items_ordered import get_items_ordered
 
 def generate_excel_report(session, order_id=None, user_id=None, item_id=None, skip=0, limit=100):
     items = get_items_ordered(session, order_id=order_id, user_id=user_id, item_id=item_id, skip=skip, limit=limit)
+    total_price = round(sum(item.price for item in items), 2)
+
+    
     buffer = BytesIO()
     data = [{
         "Order ID": item.order_id,
@@ -20,6 +23,19 @@ def generate_excel_report(session, order_id=None, user_id=None, item_id=None, sk
         "Item Brand": item.brand,
         "Item Quantity": item.quantity
     } for item in items]
+
+    data.append({
+            "Order ID": "",
+            "Item ID": "",
+            "Item Title": "",
+            "Item Description": "",
+            "Item Category": "",
+            "Item Price": total_price,
+            "Item Rating": "",
+            "Item Brand": "",
+            "Item Quantity": ""
+    })
+
     df = pd.DataFrame(data)
     with pd.ExcelWriter(buffer, engine="xlsxwriter") as writer:
         df.to_excel(writer, index=False, sheet_name="Items Ordered")
@@ -32,6 +48,9 @@ def generate_excel_report(session, order_id=None, user_id=None, item_id=None, sk
 
 def generate_csv_report(session, order_id=None, user_id=None, item_id=None, skip=0, limit=100):
     items = get_items_ordered(session, order_id=order_id, user_id=user_id, item_id=item_id, skip=skip, limit=limit)
+    total_price = round(sum(item.price for item in items), 2)
+
+    
     buffer = BytesIO()
     data = [{
         "Order ID": item.order_id,
@@ -44,6 +63,19 @@ def generate_csv_report(session, order_id=None, user_id=None, item_id=None, skip
         "Item Brand": item.brand,
         "Item Quantity": item.quantity
     } for item in items]
+
+    data.append({
+        "Order ID": "",
+        "Item ID": "",
+        "Item Title": "",
+        "Item Description": "",
+        "Item Category": "",
+        "Item Price": total_price,
+        "Item Rating": "",
+        "Item Brand": "",
+        "Item Quantity": ""
+    })
+
     df = pd.DataFrame(data)
     df.to_csv(buffer, index=False)
     buffer.seek(0)
@@ -55,6 +87,8 @@ def generate_csv_report(session, order_id=None, user_id=None, item_id=None, skip
 
 def generate_pdf_report(session, order_id=None, user_id=None, item_id=None, skip=0, limit=100):
     items = get_items_ordered(session, order_id=order_id, user_id=user_id, item_id=item_id, skip=skip, limit=limit)
+    total_price = round(sum(item.price for item in items), 2)
+    
     template_path = Path("templates/order_template.html")
     html_template = template_path.read_text(encoding="utf-8")
     template = Template(html_template)
@@ -68,7 +102,7 @@ def generate_pdf_report(session, order_id=None, user_id=None, item_id=None, skip
         "rating": item.rating,
         "brand": item.brand,
         "quantity": item.quantity
-    } for item in items])
+    } for item in items], total_price=total_price)
 
     pdf_buffer = BytesIO()
     pisa_status = pisa.CreatePDF(rendered_html, dest=pdf_buffer)

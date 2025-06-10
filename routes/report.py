@@ -6,10 +6,6 @@ from auth.dependencies import require_role
 
 router = APIRouter()
 
-def verify_permission(current_user, user_id):
-    if current_user["role"] == "client" and current_user["id"] != user_id:
-        raise HTTPException(status_code=403, detail="No tiene permiso para acceder a este recurso.")
-
 @router.get("/report/excel")
 def excel_report(
     order_id: int = Query(...),
