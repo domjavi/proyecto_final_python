@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 from sqlmodel import SQLModel
 from db.database import engine
 import uvicorn
-from routes import auth, user, order, items_ordered
+from routes import auth, user, order, items_ordered, report
 
 # Load environment variables from .env file
 load_dotenv()
@@ -27,6 +27,7 @@ app.include_router(user.router, prefix="/api", tags=["Users"])
 app.include_router(order.router, prefix="/api", tags=["Orders"])
 app.include_router(items_ordered.router, prefix="/api", tags=["Items Ordered"])
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(report.router, prefix="/api", tags=["Report"])
 
 # Manejo de excepciones globales
 @app.exception_handler(Exception)
