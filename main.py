@@ -23,10 +23,10 @@ def read_root(request: Request):
     return templates.TemplateResponse("forgot_password.html", {"request": request})
 
 # Definir las rutas de la API
+app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(user.router, prefix="/api", tags=["Users"])
 app.include_router(order.router, prefix="/api", tags=["Orders"])
 app.include_router(items_ordered.router, prefix="/api", tags=["Items Ordered"])
-app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(report.router, prefix="/api", tags=["Report"])
 
 # Manejo de excepciones globales

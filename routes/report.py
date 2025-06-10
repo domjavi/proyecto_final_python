@@ -6,9 +6,13 @@ from auth.dependencies import require_role
 
 router = APIRouter()
 
+def verify_permission(current_user, user_id):
+    if current_user["role"] == "client" and current_user["id"] != user_id:
+        raise HTTPException(status_code=403, detail="No tiene permiso para acceder a este recurso.")
+
 @router.get("/report/excel")
 def excel_report(
-    order_id: int = Query(None),
+    order_id: int = Query(...),
     user_id: int = Query(None),
     item_id: int = Query(None),
     skip: int = Query(0),
@@ -25,7 +29,7 @@ def excel_report(
 
 @router.get("/report/csv")
 def csv_report(
-    order_id: int = Query(None),
+    order_id: int = Query(...),
     user_id: int = Query(None),
     item_id: int = Query(None),
     skip: int = Query(0),
@@ -42,7 +46,7 @@ def csv_report(
 
 @router.get("/report/pdf")
 def pdf_report(
-    order_id: int = Query(None),
+    order_id: int = Query(...),
     user_id: int = Query(None),
     item_id: int = Query(None),
     skip: int = Query(0),

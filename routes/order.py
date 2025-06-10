@@ -15,16 +15,12 @@ router = APIRouter()
 
 @router.post("/orders/", response_model=OrderRead)
 def create(
-    order: OrderCreate, session: Session = Depends(get_session), current_user: dict = Depends(require_role("admin", "client"))
+    order: OrderCreate, session: Session = Depends(get_session), current_user: dict = Depends(require_role("admin"))
 ):
     try:
-        if current_user["role"] == "admin":
-            owner_id = order.owner_id
-        elif current_user["role"] == "client":
-            owner_id = current_user["id"]
-        else:
-            raise HTTPException(status_code=403, detail="Insufficient permissions to create an order")
-        owner = get_users(session, id=owner_id)
+        if current_user["role"] != "admin" and order.owner_id != current_user["id"]:
+            raise HTTPException(status_code=403, detail="Insufficient permissions to create an order for another user")
+        owner = get_users(session, id=order.owner_id)
         if not owner:
             raise HTTPException(status_code=404, detail="User not found")
         if isinstance(owner, list):
@@ -72,16 +68,14 @@ def update_order(
         }
     ),
     session: Session = Depends(get_session),
-    current_user: dict = Depends(require_role("admin", "client"))
+    current_user: dict = Depends(require_role("admin"))
 ):
     existing_order = session.get(Order, order_id)
     if not existing_order:
         raise HTTPException(status_code=404, detail="Order not found")
     
-    if current_user["role"] == "admin":
-        owner_id = order_data.owner_id
-    else:
-        raise HTTPException(status_code=403, detail="Insufficient permissions to update an order")
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Insufficient permissions to change order ownership")
     
     order_data_dict = order_data.model_dump()
     updated_order = update_order(session, order_id, order_data_dict)
@@ -93,17 +87,15 @@ def update_order(
 def delete(
     order_id: int,
     session: Session = Depends(get_session),
-    current_user: dict = Depends(require_role("admin", "client"))
+    current_user: dict = Depends(require_role("admin"))
 ):
     existing_order = session.get(Order, order_id)
     if not existing_order:
         raise HTTPException(status_code=404, detail="Order not found")
-    if current_user["role"] == "admin":
-        owner_id = existing_order.owner_id
-    elif current_user["role"] == "client":
-        owner_id = current_user["id"]
-    else:
-        raise HTTPException(status_code=403, detail="Insufficient permissions to delete an order")
+
+    if existing_order.owner_id != current_user["id"] and current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Insufficient permissions to delete another user's order")
+    
     deleted_order = delete_order(session, order_id)
     if not deleted_order:
         raise HTTPException(status_code=404, detail="Order not found")
