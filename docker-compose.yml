@@ -9,6 +9,7 @@ services:
       - .env
     environment:
       DB_HOST: db
+      CONFIRM_DROP: no  # Set to "yes" to confirm dropping the database
     depends_on:
       - db
       - redis
@@ -30,3 +31,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:

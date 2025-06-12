@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.templating import Jinja2Templates
@@ -29,7 +29,15 @@ app.include_router(order.router, prefix="/api", tags=["Orders"])
 app.include_router(items_ordered.router, prefix="/api", tags=["Items Ordered"])
 app.include_router(report.router, prefix="/api", tags=["Report"])
 
-# Manejo de excepciones globales
+# Manejo de excepciones para errores de cliente (4xx)
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+    )
+
+# Manejo de excepciones globales para errores del servidor (5xx)
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     return JSONResponse(

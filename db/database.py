@@ -24,6 +24,11 @@ def create_db_and_tables():
         print(f"Error creating tables: {e}")
 
 def drop_db_and_tables():
+    confirm = os.getenv("CONFIRM_DROP", "no")
+    if confirm.lower() != "yes":
+        print("Operación cancelada.")
+        return
+    
     try:
         SQLModel.metadata.drop_all(engine)
         print("✅ Tables dropped successfully.")
