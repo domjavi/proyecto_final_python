@@ -109,7 +109,7 @@ Además, el sistema de autenticación permite a los usuarios:
 - Iniciar sesión
 - Cerrar sesión
 - Refrescar el token de sesión
-- Reiniciar la constraseña
+- Reiniciar la contraseña
 - Cambiar la contraseña
 
 Los tokens de inicio de sesión expirados se almacenan con un sistema de Redis. Estos datos también tienen persistencia. Como posible mejora futura se podría cambiar para que se almacenen solo los tokens en activo y se borren una vez expiren para evitar que el tamaño del volumen vaya aumentando indefinidamente.
@@ -192,3 +192,7 @@ Si la nueva cantidad de unidades del producto es 0, se elimina el producto del p
 #### DELETE - Eliminar un producto de un pedido
 
 Elimina el producto seleccionado de un pedido. El usuario admin puede eliminar productos de cualquier pedido y el usuario cliente solo de sus propios pedidos
+
+### GET - Generar reportes en Excel/CSV/PDF
+
+To be done
